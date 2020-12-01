@@ -4,8 +4,8 @@ import com.lfl.advent2020.LinesConsumer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.collections.api.collection.primitive.MutableIntCollection;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
-import org.eclipse.collections.impl.collector.Collectors2;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +17,7 @@ import java.util.Objects;
 @Service
 public class IntListHandler implements LinesConsumer {
 
-    public static final int SUM = 2020;
+    private static final int SUM = 2020;
 
     @Override
     public void consume(List<String> lines) {
@@ -31,9 +31,10 @@ public class IntListHandler implements LinesConsumer {
         MutableIntList numbers = lines.stream()
                                       .mapToInt(Integer::parseInt)
                                       .filter(n -> n + min <= SUM)
-                                      .filter(n -> n + max >= 2020)
-                                      .boxed()
-                                      .collect(Collectors2.collectInt(i -> i, IntLists.mutable::empty));
+                                      .filter(n -> n + max >= SUM)
+                                      .collect(IntLists.mutable::empty,
+                                               MutableIntCollection::add,
+                                               MutableIntCollection::addAll);
 
         Result result = findNumbers(numbers);
         if (Objects.isNull(result)) {
@@ -55,8 +56,8 @@ public class IntListHandler implements LinesConsumer {
                     number2 = numbers.get(index2);
                     number3 = numbers.get(index3);
 
-                    if (number1 + number2 + number3 == 2020) {
-                        log.info("{} + {} + {} = 2020", number1, number2, number3);
+                    if (number1 + number2 + number3 == SUM) {
+                        log.info("{} + {} + {} = {}", number1, number2, number3, SUM);
                         return Result.of(number1, number2, number3);
                     }
                 }

@@ -12,10 +12,10 @@ public interface LinesConsumer {
     void consume(List<String> lines);
 
     static LinesConsumer doNothing() {
-        return lines -> {
-        };
+        return lines -> {};
     }
 
+    @SuppressWarnings("ConstantConditions")
     static List<String> readAllInput(String input) throws URISyntaxException, IOException {
         URI resource = LinesConsumer.class.getClassLoader().getResource("input/" + input).toURI();
         return Files.readAllLines(Paths.get(resource));

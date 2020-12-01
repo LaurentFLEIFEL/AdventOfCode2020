@@ -1,8 +1,8 @@
 package com.lfl.advent2020;
 
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.collections.api.collection.primitive.MutableIntCollection;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
-import org.eclipse.collections.impl.collector.Collectors2;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.junit.Test;
 
@@ -56,8 +56,9 @@ public class MiscTest {
                                       .mapToInt(Integer::parseInt)
                                       .filter(n -> n + min <= 2020)
                                       .filter(n -> n + max >= 2020)
-                                      .boxed()
-                                      .collect(Collectors2.collectInt(i -> i, IntLists.mutable::empty));
+                                      .collect(IntLists.mutable::empty,
+                                               MutableIntCollection::add,
+                                               MutableIntCollection::addAll);
 
         for (int i = 0; i < numbers.size() - 1; i++) {
             for (int j = i + 1; j < numbers.size(); j++) {

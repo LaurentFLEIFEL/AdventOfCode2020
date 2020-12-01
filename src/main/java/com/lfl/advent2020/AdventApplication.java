@@ -14,8 +14,8 @@ import java.util.Map;
 @SpringBootApplication
 @Slf4j
 public class AdventApplication implements CommandLineRunner {
-    public static final String input = "day1-1.txt";
-    public static final String service = "intListHandler";
+    private static final String input = "day1-1.txt";
+    private static final String service = "intListHandler";
 
     private final Map<String, LinesConsumer> serviceByName;
 
@@ -27,10 +27,6 @@ public class AdventApplication implements CommandLineRunner {
         }
     }
 
-    private void runService() throws Exception {
-        serviceByName.getOrDefault(service, LinesConsumer.doNothing()).consume(LinesConsumer.readAllInput(input));
-    }
-
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(AdventApplication.class);
         app.addListeners(new ApplicationPidFileWriter());
@@ -40,12 +36,16 @@ public class AdventApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         Instant start = Instant.now();
-        log.info("Start run…");
+        log.info("Start run");
 
         runService();
 
-        log.info("End run.");
+        log.info("End run");
         Instant end = Instant.now();
         log.info("Elapsed time = {}ms", Duration.between(start, end).toMillis());
+    }
+
+    private void runService() throws Exception {
+        serviceByName.getOrDefault(service, LinesConsumer.doNothing()).consume(LinesConsumer.readAllInput(input));
     }
 }
