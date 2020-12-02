@@ -1,7 +1,10 @@
 package com.lfl.advent2020;
 
+import com.lfl.advent2020.days.day2.PasswordAnalyzer;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.collections.api.collection.primitive.MutableIntCollection;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.junit.Test;
@@ -70,6 +73,16 @@ public class MiscTest {
                 }
             }
         }
+        //Then
+    }
+
+    @Test
+    public void day2() {
+        //Given
+        MutableList<String> lines = Lists.mutable.of("2-4 p: vpkpp");
+
+        //When
+        new PasswordAnalyzer().consume(lines);
         //Then
     }
 }
