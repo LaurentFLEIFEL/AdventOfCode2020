@@ -14,8 +14,8 @@ import java.util.Map;
 @SpringBootApplication
 @Slf4j
 public class AdventApplication implements CommandLineRunner {
-    private static final String input = "day2-1.txt";
-    private static final String service = "passwordAnalyzer";
+    private static final String input = "day3-1.txt";
+    private static final String service = "tobogganDriver";
 
     private final Map<String, LinesConsumer> serviceByName;
 
@@ -46,6 +46,7 @@ public class AdventApplication implements CommandLineRunner {
     }
 
     private void runService() throws Exception {
-        serviceByName.getOrDefault(service, LinesConsumer.doNothing()).consume(LinesConsumer.readAllInput(input));
+        serviceByName.getOrDefault(service, LinesConsumer.doNothing())
+                     .consume(LinesConsumer.readAllInput(input));
     }
 }
