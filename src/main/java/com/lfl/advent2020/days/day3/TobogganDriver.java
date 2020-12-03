@@ -68,7 +68,6 @@ public class TobogganDriver implements LinesConsumer {
         }
     }
 
-
     public enum Tile {
         EMPTY('.'),
         TREE('#');
