@@ -44,13 +44,15 @@ public class TobogganDriver implements LinesConsumer {
         Point spot = Point.ZERO;
         int treeCount = 0;
 
-        if (map.get(spot).equals(Tile.TREE)) {
+        if (map.get(spot).isTree()) {
             treeCount++;
         }
 
         while (spot.getY() < height - 1) {
-            spot = Point.of((spot.getX() + widthOffset) % width, spot.getY() + heightOffset);
-            if (map.get(spot).equals(Tile.TREE)) {
+            int newX = (spot.getX() + widthOffset) % width;
+            int newY = spot.getY() + heightOffset;
+            spot = Point.of(newX, newY);
+            if (map.get(spot).isTree()) {
                 treeCount++;
             }
         }
@@ -76,6 +78,10 @@ public class TobogganDriver implements LinesConsumer {
 
         Tile(char code) {
             this.code = code;
+        }
+
+        public boolean isTree() {
+            return this.equals(Tile.TREE);
         }
 
         public static Tile of(char code) {
