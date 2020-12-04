@@ -1,14 +1,13 @@
 package com.lfl.advent2020.days.day4;
 
 import com.lfl.advent2020.LinesConsumer;
+import com.lfl.advent2020.utils.Strings;
 import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
-import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -22,8 +21,6 @@ import java.util.function.Predicate;
 @Service
 public class PassportValidator implements LinesConsumer {
 
-    private static final ImmutableIntSet NUMERIC_CHARS = IntSets.immutable.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
-    private static final ImmutableIntSet HEXADECIMAL_CHARS = IntSets.immutable.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
     private static final ImmutableSet<String> EYE_COLORS = Sets.immutable.of("amb", "blu", "brn", "gry", "grn", "hzl", "oth");
     @Getter
     private long validPassportCount;
@@ -121,7 +118,7 @@ public class PassportValidator implements LinesConsumer {
                    Passport::getHairColor,
                    p -> p.getHairColor().length() == 7
                         && p.getHairColor().charAt(0) == '#'
-                        && p.getHairColor().substring(1).chars().allMatch(HEXADECIMAL_CHARS::contains)),
+                        && Strings.isHexadecimalNumeric(p.getHairColor().substring(1))),
         EYE_COLOR("ecl",
                   false,
                   Passport::setEyeColor,
@@ -132,7 +129,7 @@ public class PassportValidator implements LinesConsumer {
                     Passport::setPassportId,
                     Passport::getPassportId,
                     p -> p.getPassportId().length() == 9
-                         && p.getPassportId().chars().allMatch(NUMERIC_CHARS::contains)),
+                         && Strings.isNumeric(p.getPassportId())),
         COUNTRY_ID("cid",
                    true,
                    (p, s) -> p.setCountryId(Integer.parseInt(s)),
