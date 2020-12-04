@@ -14,8 +14,8 @@ import java.util.Map;
 @SpringBootApplication
 @Slf4j
 public class AdventApplication implements CommandLineRunner {
-    private static final String input = "day3-1.txt";
-    private static final String service = "tobogganDriver";
+    private static final String input = "day4-1.txt";
+    private static final String service = "passportValidator";
 
     private final Map<String, LinesConsumer> serviceByName;
 
