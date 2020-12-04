@@ -28,7 +28,6 @@ public class PassportValidator implements LinesConsumer {
     @Getter
     private long validPassportCount;
 
-
     @Override
     public void consume(List<String> lines) {
         List<Passport> passports = parsePassports(lines);
@@ -70,7 +69,6 @@ public class PassportValidator implements LinesConsumer {
         private String passportId;
         private Integer countryId;
 
-
         public static Passport of(List<String> lines) {
             return Passport.of(String.join(" ", lines));
         }
@@ -91,7 +89,6 @@ public class PassportValidator implements LinesConsumer {
             return Arrays.stream(PassportField.values())
                          .allMatch(field -> field.isValid(this));
         }
-
     }
 
     public enum PassportField {
@@ -148,9 +145,9 @@ public class PassportValidator implements LinesConsumer {
         private final Function<Passport, Object> fieldGetter;
         private final Predicate<Passport> fieldValidator;
 
-
         PassportField(String code,
-                      boolean isOptional, BiConsumer<Passport, String> fieldSetter,
+                      boolean isOptional,
+                      BiConsumer<Passport, String> fieldSetter,
                       Function<Passport, Object> fieldGetter,
                       Predicate<Passport> fieldValidator) {
             this.code = code;
@@ -186,7 +183,6 @@ public class PassportValidator implements LinesConsumer {
                          .findAny()
                          .orElseThrow(() -> new IllegalArgumentException("PassportField " + code + " is not recognised."));
         }
-
     }
 
     public enum HeightUnit {
