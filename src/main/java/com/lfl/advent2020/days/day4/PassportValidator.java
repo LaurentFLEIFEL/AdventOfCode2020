@@ -4,10 +4,11 @@ import com.lfl.advent2020.LinesConsumer;
 import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -16,16 +17,17 @@ import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 public class PassportValidator implements LinesConsumer {
 
+    private static final ImmutableIntSet NUMERIC_CHARS = IntSets.immutable.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9');
+    private static final ImmutableIntSet HEXADECIMAL_CHARS = IntSets.immutable.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f');
     private static final ImmutableSet<String> EYE_COLORS = Sets.immutable.of("amb", "blu", "brn", "gry", "grn", "hzl", "oth");
     @Getter
     private long validPassportCount;
+
 
     @Override
     public void consume(List<String> lines) {
@@ -68,6 +70,7 @@ public class PassportValidator implements LinesConsumer {
         private String passportId;
         private Integer countryId;
 
+
         public static Passport of(List<String> lines) {
             return Passport.of(String.join(" ", lines));
         }
@@ -88,6 +91,7 @@ public class PassportValidator implements LinesConsumer {
             return Arrays.stream(PassportField.values())
                          .allMatch(field -> field.isValid(this));
         }
+
     }
 
     public enum PassportField {
@@ -120,7 +124,7 @@ public class PassportValidator implements LinesConsumer {
                    Passport::getHairColor,
                    p -> p.getHairColor().length() == 7
                         && p.getHairColor().charAt(0) == '#'
-                        && isHexadecimal(p.getHairColor().substring(2))),
+                        && p.getHairColor().substring(1).chars().allMatch(HEXADECIMAL_CHARS::contains)),
         EYE_COLOR("ecl",
                   false,
                   Passport::setEyeColor,
@@ -131,7 +135,7 @@ public class PassportValidator implements LinesConsumer {
                     Passport::setPassportId,
                     Passport::getPassportId,
                     p -> p.getPassportId().length() == 9
-                         && StringUtils.isNumeric(p.getPassportId())),
+                         && p.getPassportId().chars().allMatch(NUMERIC_CHARS::contains)),
         COUNTRY_ID("cid",
                    true,
                    (p, s) -> p.setCountryId(Integer.parseInt(s)),
@@ -143,6 +147,7 @@ public class PassportValidator implements LinesConsumer {
         private final BiConsumer<Passport, String> fieldSetter;
         private final Function<Passport, Object> fieldGetter;
         private final Predicate<Passport> fieldValidator;
+
 
         PassportField(String code,
                       boolean isOptional, BiConsumer<Passport, String> fieldSetter,
@@ -156,11 +161,11 @@ public class PassportValidator implements LinesConsumer {
         }
 
         public void setField(Passport passport, String value) {
-            this.fieldSetter.accept(passport, value);
+            fieldSetter.accept(passport, value);
         }
 
         public Object getField(Passport passport) {
-            return this.fieldGetter.apply(passport);
+            return fieldGetter.apply(passport);
         }
 
         public boolean isValid(Passport passport) {
@@ -172,7 +177,7 @@ public class PassportValidator implements LinesConsumer {
                 return false;
             }
 
-            return this.fieldValidator.test(passport);
+            return fieldValidator.test(passport);
         }
 
         public static PassportField of(String code) {
@@ -181,6 +186,7 @@ public class PassportValidator implements LinesConsumer {
                          .findAny()
                          .orElseThrow(() -> new IllegalArgumentException("PassportField " + code + " is not recognised."));
         }
+
     }
 
     public enum HeightUnit {
@@ -190,6 +196,7 @@ public class PassportValidator implements LinesConsumer {
         private final String code;
         private final int min;
         private final int max;
+
 
         HeightUnit(String code, int min, int max) {
             this.code = code;
@@ -219,12 +226,5 @@ public class PassportValidator implements LinesConsumer {
                          .findAny()
                          .orElse(null);
         }
-    }
-
-    private static final Pattern HEXADECIMAL_PATTERN = Pattern.compile("\\p{XDigit}+");
-
-    private static boolean isHexadecimal(String input) {
-        final Matcher matcher = HEXADECIMAL_PATTERN.matcher(input);
-        return matcher.matches();
     }
 }
