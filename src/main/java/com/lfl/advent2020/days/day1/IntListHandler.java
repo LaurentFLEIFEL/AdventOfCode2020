@@ -32,6 +32,7 @@ public class IntListHandler implements LinesConsumer {
                                       .mapToInt(Integer::parseInt)
                                       .filter(n -> n + min <= SUM)
                                       .filter(n -> n + max >= SUM)
+                                      .sorted()
                                       .collect(IntLists.mutable::empty,
                                                MutableIntCollection::add,
                                                MutableIntCollection::addAll);
@@ -50,11 +51,19 @@ public class IntListHandler implements LinesConsumer {
         int number2;
         int number3;
         for (int index1 = 0; index1 < numbers.size() - 2; index1++) {
+            number1 = numbers.get(index1);
+
             for (int index2 = index1 + 1; index2 < numbers.size() - 1; index2++) {
+                number2 = numbers.get(index2);
+                if (number1 + number2 >= SUM) {
+                    break;
+                }
+
                 for (int index3 = index2 + 1; index3 < numbers.size(); index3++) {
-                    number1 = numbers.get(index1);
-                    number2 = numbers.get(index2);
                     number3 = numbers.get(index3);
+                    if (number1 + number2 + number3 > SUM) {
+                        break;
+                    }
 
                     if (number1 + number2 + number3 == SUM) {
                         log.info("{} + {} + {} = {}", number1, number2, number3, SUM);
