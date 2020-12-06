@@ -40,7 +40,7 @@ public class PassportValidator implements LinesConsumer {
         List<Passport> passports = Lists.mutable.empty();
         List<String> partialPassport = Lists.mutable.empty();
         for (String line : lines) {
-            if ("".equals(line)) {
+            if (line.isEmpty()) {
                 passports.add(Passport.of(partialPassport));
                 partialPassport = Lists.mutable.empty();
                 continue;
