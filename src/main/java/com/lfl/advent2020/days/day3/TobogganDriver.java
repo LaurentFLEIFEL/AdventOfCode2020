@@ -4,6 +4,7 @@ import com.lfl.advent2020.LinesConsumer;
 import com.lfl.advent2020.utils.Point;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Maps;
 import org.springframework.stereotype.Service;
 
@@ -25,17 +26,15 @@ public class TobogganDriver implements LinesConsumer {
     public void consume(List<String> lines) {
         buildMap(lines);
 
-        int treeCount11 = getTreeCount(1, 1);
-        int treeCount31 = getTreeCount(3, 1);
-        int treeCount51 = getTreeCount(5, 1);
-        int treeCount71 = getTreeCount(7, 1);
-        int treeCount12 = getTreeCount(1, 2);
-
-        product = BigInteger.valueOf(treeCount11)
-                            .multiply(BigInteger.valueOf(treeCount31))
-                            .multiply(BigInteger.valueOf(treeCount51))
-                            .multiply(BigInteger.valueOf(treeCount71))
-                            .multiply(BigInteger.valueOf(treeCount12));
+        product = Lists.mutable.of(getTreeCount(1, 1),
+                                   getTreeCount(3, 1),
+                                   getTreeCount(5, 1),
+                                   getTreeCount(7, 1),
+                                   getTreeCount(1, 2))
+                               .stream()
+                               .map(BigInteger::valueOf)
+                               .reduce(BigInteger::multiply)
+                               .orElse(BigInteger.ZERO);
 
         log.info("Tree count = {}", product);
     }
@@ -44,17 +43,14 @@ public class TobogganDriver implements LinesConsumer {
         Point spot = Point.ZERO;
         int treeCount = 0;
 
-        if (map.get(spot).isTree()) {
-            treeCount++;
-        }
-
-        while (spot.getY() < height - 1) {
-            int newX = (spot.getX() + widthOffset) % width;
-            int newY = spot.getY() + heightOffset;
-            spot = Point.of(newX, newY);
+        while (spot.getY() < height) {
             if (map.get(spot).isTree()) {
                 treeCount++;
             }
+
+            int newX = (spot.getX() + widthOffset) % width;
+            int newY = spot.getY() + heightOffset;
+            spot = Point.of(newX, newY);
         }
         return treeCount;
     }
