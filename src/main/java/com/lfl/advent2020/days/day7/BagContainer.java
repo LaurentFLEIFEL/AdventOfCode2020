@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 @Slf4j
 @Service
@@ -46,6 +47,7 @@ public class BagContainer implements LinesConsumer {
             previousSize = shinyGoldContainer.size();
             bags.values()
                 .stream()
+                .filter(bag -> !shinyGoldContainer.contains(bag))
                 .filter(bag -> Sets.intersect(bag.getCanContain().keySet(), shinyGoldContainer).size() > 0)
                 .forEach(shinyGoldContainer::add);
         } while (previousSize < shinyGoldContainer.size());
