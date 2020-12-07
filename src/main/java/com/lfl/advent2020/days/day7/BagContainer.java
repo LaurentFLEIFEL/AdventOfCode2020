@@ -30,8 +30,16 @@ public class BagContainer implements LinesConsumer {
     public void consume(List<String> lines) {
         lines.forEach(this::parseLine);
 
-        String bagColor = "shiny gold";
-        Bag targetBag = bags.get(bagColor);
+        Bag targetBag = bags.get("shiny gold");
+
+        computeContainer(targetBag);
+        log.info("canContainCount = {}", canBeContainedBy);
+
+        shouldContain = targetBag.canContain();
+        log.info("Shiny gold should contain {} bags", shouldContain);
+    }
+
+    private void computeContainer(Bag targetBag) {
         Set<Bag> shinyGoldContainer = Sets.mutable.of(targetBag);
         int previousSize;
         do {
@@ -43,9 +51,6 @@ public class BagContainer implements LinesConsumer {
         } while (previousSize < shinyGoldContainer.size());
 
         canBeContainedBy = shinyGoldContainer.size() - 1;
-        log.info("canContainCount = {}", canBeContainedBy);
-        shouldContain = targetBag.canContain();
-        log.info("Shiny gold should contain {} bags", shouldContain);
     }
 
     private void parseLine(String line) {
