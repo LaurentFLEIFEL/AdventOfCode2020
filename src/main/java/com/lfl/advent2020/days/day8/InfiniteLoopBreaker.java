@@ -11,12 +11,18 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.lfl.advent2020.days.day8.ConsoleRunner.Operator.ACC;
+import static com.lfl.advent2020.days.day8.ConsoleRunner.Operator.JMP;
+import static com.lfl.advent2020.days.day8.ConsoleRunner.Operator.NOP;
+
 @Slf4j
 @Service
 public class InfiniteLoopBreaker implements LinesConsumer {
 
     @Getter
     private final ConsoleRunner consoleRunner = new ConsoleRunner();
+    @Getter
+    private int firstAccumulation;
 
     @Override
     public void consume(List<String> lines) {
@@ -37,20 +43,24 @@ public class InfiniteLoopBreaker implements LinesConsumer {
             }
 
             if (index >= 0) {
-                Operation operation = operations.get(index);
-                operation.setOperator(swapNopJmp(operation.getOperator()));
+                swapOperationAt(operations, index);
+            } else {
+                firstAccumulation = ConsoleRunner.accumulator.get();
             }
 
             index = findNextIndex(operations, index);
-
-            Operation operation = operations.get(index);
-            operation.setOperator(swapNopJmp(operation.getOperator()));
+            swapOperationAt(operations, index);
         }
+    }
+
+    private void swapOperationAt(List<Operation> operations, int index) {
+        Operation operation = operations.get(index);
+        operation.setOperator(swapNopJmp(operation.getOperator()));
     }
 
     private int findNextIndex(List<Operation> operations, int index) {
         index++;
-        while (operations.get(index).getOperator().isAcc()) {
+        while (operations.get(index).getOperator() == ACC) {
             index++;
         }
         return index;
@@ -66,9 +76,9 @@ public class InfiniteLoopBreaker implements LinesConsumer {
     }
 
     public static Operator swapNopJmp(Operator operator) {
-        if (operator.isJmp()) {
-            return Operator.NOP;
+        if (operator == JMP) {
+            return NOP;
         }
-        return Operator.JMP;
+        return JMP;
     }
 }

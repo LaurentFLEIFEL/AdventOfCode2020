@@ -22,11 +22,13 @@ public class InfiniteLoopBreakerTest {
                                               "jmp -4",
                                               "acc +6");
         int expectedAccumulator = 8;
+        int expectedFirstAccumulation = 5;
 
         //When
         service.consume(lines);
 
         //Then
         Assertions.assertThat(ConsoleRunner.accumulator.get()).isEqualTo(expectedAccumulator);
+        Assertions.assertThat(service.getFirstAccumulation()).isEqualTo(expectedFirstAccumulation);
     }
 }

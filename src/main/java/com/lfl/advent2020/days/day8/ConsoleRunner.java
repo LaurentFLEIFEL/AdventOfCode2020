@@ -19,12 +19,14 @@ public class ConsoleRunner {
     public void run(List<Operation> operations) {
         log.info("Start run");
 
+        //reset info
         accumulator.set(0);
         if (CollectionUtils.isEmpty(operations)) {
             return;
         }
         operations.forEach(Operation::resetCount);
 
+        //run
         Operation operation = operations.get(0);
         while (operation.nextIndex() < operations.size()) {
             operation.run();
@@ -132,19 +134,6 @@ public class ConsoleRunner {
 
         public void run(int argument) {
             runner.accept(argument);
-        }
-
-        public boolean isAcc() {
-            return this == ACC;
-        }
-
-        public boolean isJmp() {
-            return this == JMP;
-        }
-
-        @SuppressWarnings("unused")
-        public boolean isNop() {
-            return this == NOP;
         }
     }
 }
