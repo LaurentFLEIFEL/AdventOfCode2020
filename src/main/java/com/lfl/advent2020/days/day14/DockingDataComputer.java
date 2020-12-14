@@ -43,8 +43,6 @@ public class DockingDataComputer implements LinesConsumer {
     public void consume(List<String> lines) {
         for (String line : lines) {
             if (line.startsWith("mask")) {
-                mask = IntIntMaps.mutable.empty();
-                maskX = IntLists.mutable.empty();
                 extractMask(line);
                 continue;
             }
@@ -117,6 +115,8 @@ public class DockingDataComputer implements LinesConsumer {
     }
 
     private void extractMask(String line) {
+        mask = IntIntMaps.mutable.empty();
+        maskX = IntLists.mutable.empty();
         String sMask = line.split(" = ")[1];
         for (int index = 0; index < sMask.length(); index++) {
             int newIndex = sMask.length() - index - 1;
