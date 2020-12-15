@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 public class ElfGame implements LinesConsumer {
 
-    private final MutableMap<Integer, List<Integer>> numberSeen = Maps.mutable.empty();
+    private final MutableMap<Integer, int[]> numberSeen = Maps.mutable.empty();
 
     @Setter
     private int maxTurn = 30000000;
@@ -32,8 +32,10 @@ public class ElfGame implements LinesConsumer {
                              .toArray();
         for (int turn = 0; turn < maxTurn; turn++) {
             previous = computePrevious(previous, turn);
-            numberSeen.computeIfAbsent(previous, i -> Lists.mutable.empty())
-                      .add(turn);
+            int finalTurn = turn;
+            int[] turns = numberSeen.computeIfAbsent(previous, i -> new int[]{finalTurn, finalTurn});
+            turns[0] = turns[1];
+            turns[1] = turn;
         }
 
         result = previous;
@@ -46,14 +48,8 @@ public class ElfGame implements LinesConsumer {
             return firstNumbers[turn];
         }
 
-        if (numberSeen.get(previous).size() == 1) {
-            return 0;
-        }
-
-        List<Integer> turnsSpoken = numberSeen.get(previous);
-        int size = turnsSpoken.size();
-        int last = turnsSpoken.get(size - 1);
-        int previousLast = turnsSpoken.get(size - 2);
-        return last - previousLast;
+        int[] turnsSpoken = numberSeen.get(previous);
+        int length = turnsSpoken.length;
+        return turnsSpoken[length - 1] - turnsSpoken[length - 2];
     }
 }
