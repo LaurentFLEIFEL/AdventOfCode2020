@@ -3,7 +3,6 @@ package com.lfl.advent2020.days.day18;
 import com.lfl.advent2020.LinesConsumer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.EnumUtils;
 import org.eclipse.collections.impl.factory.Lists;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +50,7 @@ public class MathEvaluator implements LinesConsumer {
         return evaluate(line, false);
     }
 
+    @SuppressWarnings("ConstantConditions")
     public BigInteger evaluate(String line, boolean isPart2) {
         List<String> npi = toNpi(line, isPart2);
         Deque<String> stack = new ArrayDeque<>();
@@ -65,6 +65,7 @@ public class MathEvaluator implements LinesConsumer {
         return new BigInteger(stack.pollLast());
     }
 
+    @SuppressWarnings("ConstantConditions")
     private void handleNpiOperator(Deque<String> stack, String operand) {
         String a = stack.pollLast();
         String b = stack.pollLast();
