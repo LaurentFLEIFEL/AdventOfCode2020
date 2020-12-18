@@ -3,6 +3,7 @@ package com.lfl.advent2020.days.day18;
 import com.lfl.advent2020.LinesConsumer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.EnumUtils;
 import org.eclipse.collections.impl.factory.Lists;
 import org.springframework.stereotype.Service;
 
@@ -54,20 +55,21 @@ public class MathEvaluator implements LinesConsumer {
         List<String> npi = toNpi(line, isPart2);
         Deque<String> stack = new ArrayDeque<>();
 
-        for (String s : npi) {
-            if ("+".equals(s) || "*".equals(s)) {
-                String a = stack.pollLast();
-                String b = stack.pollLast();
-                BigInteger evaluate = Operator.of(s)
-                                              .evaluate(new BigInteger(a), new BigInteger(b));
-
-                stack.add(evaluate.toString());
+        for (String operand : npi) {
+            if (Operator.isOperator(operand)) {
+                handleNpiOperator(stack, operand);
             } else {
-                stack.add(s);
+                stack.add(operand);
             }
         }
-
         return new BigInteger(stack.pollLast());
+    }
+
+    private void handleNpiOperator(Deque<String> stack, String operand) {
+        String a = stack.pollLast();
+        String b = stack.pollLast();
+        BigInteger evaluate = Operator.of(operand).evaluate(new BigInteger(a), new BigInteger(b));
+        stack.add(evaluate.toString());
     }
 
     private List<String> toNpi(String line, boolean isPart2) {
@@ -76,58 +78,68 @@ public class MathEvaluator implements LinesConsumer {
         StringBuilder numberBuilder = new StringBuilder();
         for (int index = 0; index < line.length(); index++) {
             char c = line.charAt(index);
-            if (Character.isDigit(c)) {
-                numberBuilder.append(c);
-                continue;
-            } else {
-                if (!"".equals(numberBuilder.toString())) {
-                    String numberS = numberBuilder.toString();
-                    numberBuilder = new StringBuilder();
-                    npi.add(numberS);
-                }
-            }
-
-            switch (c) {
-                case '+':
-                    if (!isPart2) {
-                        while ("*".equals(transitionStack.peekLast())) {//* has equal or more priority
-                            npi.add("*");
-                            transitionStack.removeLast();
-                        }
-                    }
-                    transitionStack.add("+");
-                    break;
-                case '*':
-                    while ("+".equals(transitionStack.peekLast())) {//+ has equal or more priority
-                        npi.add("+");
-                        transitionStack.removeLast();
-                    }
-                    transitionStack.add("*");
-                    break;
-                case '(':
-                    transitionStack.add("(");
-                    break;
-                case ')':
-                    while (!"(".equals(transitionStack.peekLast())) {
-                        npi.add(transitionStack.pollLast());
-                    }
-                    transitionStack.pollLast();//remove '('
-                    break;
-                default:
-                    throw new IllegalStateException("Operator " + c + " unrecognised.");
-            }
+            numberBuilder = handleDigit(npi, numberBuilder, c);
+            handleOperator(isPart2, npi, transitionStack, c);
         }
 
-        if (!"".equals(numberBuilder.toString())) {
-            String number = numberBuilder.toString();
-            npi.add(number);
-        }
+        collectNumberIfNeeded(npi, numberBuilder);
 
         while (Objects.nonNull(transitionStack.peekLast())) {
             npi.add(transitionStack.pollLast());
         }
 
         return npi;
+    }
+
+    private StringBuilder collectNumberIfNeeded(List<String> npi, StringBuilder numberBuilder) {
+        if (!"".equals(numberBuilder.toString())) {
+            String number = numberBuilder.toString();
+            numberBuilder = new StringBuilder();
+            npi.add(number);
+        }
+        return numberBuilder;
+    }
+
+    private void handleOperator(boolean isPart2, List<String> npi, Deque<String> transitionStack, char c) {
+        switch (c) {
+            case '+':
+                if (!isPart2) {
+                    while ("*".equals(transitionStack.peekLast())) {//* has equal or more priority
+                        npi.add("*");
+                        transitionStack.removeLast();
+                    }
+                }
+                transitionStack.add("+");
+                break;
+            case '*':
+                while ("+".equals(transitionStack.peekLast())) {//+ has equal or more priority
+                    npi.add("+");
+                    transitionStack.removeLast();
+                }
+                transitionStack.add("*");
+                break;
+            case '(':
+                transitionStack.add("(");
+                break;
+            case ')':
+                while (!"(".equals(transitionStack.peekLast())) {
+                    npi.add(transitionStack.pollLast());
+                }
+                transitionStack.pollLast();//remove '('
+                break;
+            default:
+                if (!Character.isDigit(c))
+                    throw new IllegalStateException("Operator " + c + " unrecognised.");
+        }
+    }
+
+    private StringBuilder handleDigit(List<String> npi, StringBuilder numberBuilder, char c) {
+        if (Character.isDigit(c)) {
+            numberBuilder.append(c);
+            return numberBuilder;
+        } else {
+            return collectNumberIfNeeded(npi, numberBuilder);
+        }
     }
 
     enum Operator {
@@ -151,6 +163,11 @@ public class MathEvaluator implements LinesConsumer {
                          .filter(operator -> operator.code.equals(code))
                          .findAny()
                          .orElseThrow(() -> new IllegalArgumentException("Operator " + code + " is not recognised."));
+        }
+
+        public static boolean isOperator(String operand) {
+            return Arrays.stream(values())
+                         .anyMatch(operator -> operator.code.equals(operand));
         }
     }
 }
