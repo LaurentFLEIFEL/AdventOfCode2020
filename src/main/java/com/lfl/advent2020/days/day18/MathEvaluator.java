@@ -1,6 +1,7 @@
 package com.lfl.advent2020.days.day18;
 
 import com.lfl.advent2020.LinesConsumer;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.collections.impl.factory.Lists;
 import org.springframework.stereotype.Service;
@@ -16,33 +17,41 @@ import java.util.function.BiFunction;
 @Slf4j
 @Service
 public class MathEvaluator implements LinesConsumer {
+
+    @Getter
+    private BigInteger sum1;
+    @Getter
+    private BigInteger sum2;
+
     @Override
     public void consume(List<String> lines) {
-        BigInteger sum = lines.stream()
-                              .peek(line -> log.info("line = {}", line))
-                              .map(line -> line.replaceAll(" ", ""))
-                              .map(this::evaluate1)
-                              .reduce(BigInteger::add)
-                              .orElse(BigInteger.ZERO);
+        sum1 = lines.stream()
+                    .map(line -> line.replaceAll(" ", ""))
+                    .map(this::evaluate1)
+                    .reduce(BigInteger::add)
+                    .orElse(BigInteger.ZERO);
 
-        log.info("sum = {}", sum);
+        log.info("sum1 = {}", sum1);
 
-        BigInteger sum2 = lines.stream()
-                              .peek(line -> log.info("line = {}", line))
-                              .map(line -> line.replaceAll(" ", ""))
-                              .map(this::evaluate2)
-                              .reduce(BigInteger::add)
-                              .orElse(BigInteger.ZERO);
+        sum2 = lines.stream()
+                    .map(line -> line.replaceAll(" ", ""))
+                    .map(this::evaluate2)
+                    .reduce(BigInteger::add)
+                    .orElse(BigInteger.ZERO);
 
         log.info("sum2 = {}", sum2);
-
-
     }
 
     public BigInteger evaluate2(String line) {
-        List<String> npi = toNpi(line);
+        return evaluate(line, true);
+    }
 
-        log.info("NPI = {}", npi);
+    public BigInteger evaluate1(String line) {
+        return evaluate(line, false);
+    }
+
+    public BigInteger evaluate(String line, boolean isPart2) {
+        List<String> npi = toNpi(line, isPart2);
         Deque<String> stack = new ArrayDeque<>();
 
         for (String s : npi) {
@@ -58,116 +67,67 @@ public class MathEvaluator implements LinesConsumer {
             }
         }
 
-
         return new BigInteger(stack.pollLast());
     }
 
-    private List<String> toNpi(String line) {
+    private List<String> toNpi(String line, boolean isPart2) {
         List<String> npi = Lists.mutable.empty();
         Deque<String> transitionStack = new ArrayDeque<>();
-        StringBuilder number = new StringBuilder();
+        StringBuilder numberBuilder = new StringBuilder();
         for (int index = 0; index < line.length(); index++) {
             char c = line.charAt(index);
             if (Character.isDigit(c)) {
-                number.append(c);
+                numberBuilder.append(c);
                 continue;
             } else {
-                if (!"".equals(number.toString())) {
-                    String numberS = number.toString();
-                    number = new StringBuilder();
+                if (!"".equals(numberBuilder.toString())) {
+                    String numberS = numberBuilder.toString();
+                    numberBuilder = new StringBuilder();
                     npi.add(numberS);
                 }
             }
 
-            if (c == '+') {
-                transitionStack.add("+");
-            }
-
-            if (c == '*') {
-                while ("+".equals(transitionStack.peekLast())) {
-                    npi.add("+");
-                    transitionStack.removeLast();
-                }
-                transitionStack.add("*");
-            }
-
-            if (c == '(') {
-                transitionStack.add("(");
-            }
-
-            if (c == ')') {
-                while (!"(".equals(transitionStack.peekLast())) {
-                    npi.add(transitionStack.pollLast());
-                }
-                transitionStack.pollLast();//remove '('
+            switch (c) {
+                case '+':
+                    if (!isPart2) {
+                        while ("*".equals(transitionStack.peekLast())) {//* has equal or more priority
+                            npi.add("*");
+                            transitionStack.removeLast();
+                        }
+                    }
+                    transitionStack.add("+");
+                    break;
+                case '*':
+                    while ("+".equals(transitionStack.peekLast())) {//+ has equal or more priority
+                        npi.add("+");
+                        transitionStack.removeLast();
+                    }
+                    transitionStack.add("*");
+                    break;
+                case '(':
+                    transitionStack.add("(");
+                    break;
+                case ')':
+                    while (!"(".equals(transitionStack.peekLast())) {
+                        npi.add(transitionStack.pollLast());
+                    }
+                    transitionStack.pollLast();//remove '('
+                    break;
+                default:
+                    throw new IllegalStateException("Operator " + c + " unrecognised.");
             }
         }
 
-        if (!"".equals(number.toString())) {
-            String numberS = number.toString();
-            npi.add(numberS);
+        if (!"".equals(numberBuilder.toString())) {
+            String number = numberBuilder.toString();
+            npi.add(number);
         }
+
         while (Objects.nonNull(transitionStack.peekLast())) {
             npi.add(transitionStack.pollLast());
         }
+
         return npi;
-    }
-
-    public BigInteger evaluate1(String line) {
-        StringBuilder number = new StringBuilder();
-        Deque<String> stack = new ArrayDeque<>();
-        for (int index = 0; index < line.length(); index++) {
-            char c = line.charAt(index);
-            if (Character.isDigit(c)) {
-                number.append(c);
-                continue;
-            } else {
-                if (!"".equals(number.toString())) {
-                    String numberS = number.toString();
-                    number = new StringBuilder();
-                    evaluate1OrAdd(stack, numberS);
-                }
-            }
-
-            if (c != ')') {
-                stack.add(Character.toString(c));
-            } else {
-                String numberS = stack.pollLast();
-                String openParenthesis = stack.pollLast();
-                evaluate1OrAdd(stack, numberS);
-            }
-        }
-
-        if (!"".equals(number.toString())) {
-            String numberS = number.toString();
-            evaluate1OrAdd(stack, numberS);
-        }
-
-        return new BigInteger(stack.pop());
-    }
-
-    private void evaluate1OrAdd(Deque<String> stack, String numberS) {
-        if (stack.size() > 1) {
-            evaluate1(stack, numberS);
-        } else {
-            stack.add(numberS);
-        }
-    }
-
-    private void evaluate1(Deque<String> stack, String numberS) {
-        String operator = stack.pollLast();
-        String lastNumber = stack.pollLast();
-
-        if ("(".equals(operator)) {
-            stack.add(lastNumber);
-            stack.add(operator);
-            stack.add(numberS);
-        } else {
-
-            BigInteger evaluate = Operator.of(operator)
-                                          .evaluate(new BigInteger(numberS), new BigInteger(lastNumber));
-            stack.add(evaluate.toString());
-        }
     }
 
     enum Operator {
