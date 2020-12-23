@@ -15,6 +15,7 @@ public class CrabCupRunnerTest {
         service.setMaxMoveNbr(10);
         service.setNbrMax(9);
         service.setPart2(false);
+        service.setDebug(true);
 
         //When
         service.consume(lines);
@@ -30,6 +31,7 @@ public class CrabCupRunnerTest {
         service.setMaxMoveNbr(100);
         service.setNbrMax(9);
         service.setPart2(false);
+        service.setDebug(true);
 
         //When
         service.consume(lines);
@@ -45,6 +47,7 @@ public class CrabCupRunnerTest {
         service.setMaxMoveNbr(100);
         service.setNbrMax(9);
         service.setPart2(false);
+        service.setDebug(true);
 
         //When
         service.consume(lines);
