@@ -32,6 +32,7 @@ public class SpaceCardsRunner implements LinesConsumer {
         Player winner = runGame(player1, player2);
 
         log.info("Result = {}", winner.computeValue());
+        log.info("Game played = {}", gameNbrMax);
     }
 
     private Player runGame(Player player1, Player player2) {
