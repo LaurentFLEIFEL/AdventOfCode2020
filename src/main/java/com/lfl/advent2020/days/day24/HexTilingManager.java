@@ -98,11 +98,8 @@ public class HexTilingManager implements LinesConsumer {
     private MutableMap<Point, Color> updateColors(MutableMap<Point, Color> map) {
         MutableMap<Point, Color> tmp = Maps.mutable.withInitialCapacity(map.size());
         map.forEachKeyValue((point, color) -> {
-            long count = findNeighbors(point).stream()
-                                             .filter(map::containsKey)
-                                             .map(map::get)
-                                             .filter(color1 -> color1 == Color.BLACK)
-                                             .count();
+            long count = findNeighbors(point).select(map::containsKey)
+                                             .count(p -> map.get(p) == Color.BLACK);
 
             tmp.put(point, color.shouldSwap(count) ? color.swap() : color);
         });
